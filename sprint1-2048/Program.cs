@@ -4,263 +4,257 @@ namespace Console2048
 {
     class Program
     {
-        static int[,] grid = new int[4, 4];
+        // Déclaration de la grille du jeu et du générateur de nombres aléatoires
+        static int[,] grille = new int[4, 4];
         static Random random = new Random();
 
+        // Méthode principale du jeu
         static void Main()
         {
-            InitializeGame();
-            PrintGrid();
+            // Initialisation du jeu
+            InitialiserJeu();
+            // Affichage de la grille initiale
+            AfficherGrille();
 
+            // Boucle principale du jeu
             while (true)
             {
+                // Lecture de la touche appuyée par le joueur
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
+                // Sortir de la boucle si la touche "Escape" est pressée
                 if (keyInfo.Key == ConsoleKey.Escape)
                 {
                     break;
                 }
 
-                HandleInput(keyInfo);
-                PrintGrid();
+                // Gestion de l'entrée utilisateur
+                GererEntree(keyInfo);
+                // Affichage de la grille après chaque mouvement
+                AfficherGrille();
             }
         }
 
-        static void InitializeGame()
+        // Initialisation du jeu en générant deux tuiles aléatoires
+        static void InitialiserJeu()
         {
-            GenerateRandomTile();
-            GenerateRandomTile();
+            GenererTuileAleatoire();
+            GenererTuileAleatoire();
         }
 
-        static void PrintGrid()
+        // Affichage de la grille de jeu dans la console
+        static void AfficherGrille()
         {
             Console.Clear();
-            Console.WriteLine("2048 Game");
+            Console.WriteLine("Jeu 2048");
             Console.WriteLine();
 
-            for (int row = 0; row < 4; row++)
+            for (int ligne = 0; ligne < 4; ligne++)
             {
                 for (int col = 0; col < 4; col++)
                 {
-                    Console.Write($"{grid[row, col],-6}");
+                    Console.Write($"{grille[ligne, col],-6}");
                 }
                 Console.WriteLine();
             }
         }
 
-        static void HandleInput(ConsoleKeyInfo keyInfo)
+        // Gestion de l'entrée utilisateur pour déplacer les tuiles
+        static void GererEntree(ConsoleKeyInfo keyInfo)
         {
             switch (keyInfo.Key)
             {
                 case ConsoleKey.UpArrow:
-                    Move(Direction.Up);
+                    Deplacer(Direction.Haut);
                     break;
                 case ConsoleKey.DownArrow:
-                    Move(Direction.Down);
+                    Deplacer(Direction.Bas);
                     break;
                 case ConsoleKey.LeftArrow:
-                    Move(Direction.Left);
+                    Deplacer(Direction.Gauche);
                     break;
                 case ConsoleKey.RightArrow:
-                    Move(Direction.Right);
+                    Deplacer(Direction.Droite);
                     break;
             }
         }
 
-        static void Move(Direction direction)
+        // Méthode de déplacement principal qui appelle les méthodes spécifiques de déplacement
+        static void Deplacer(Direction direction)
         {
-            bool moved = false;
+            bool deplace = false;
 
             switch (direction)
             {
-                case Direction.Up:
+                case Direction.Haut:
                     for (int col = 0; col < 4; col++)
-                        moved |= MoveColumnUp(col);
+                        deplace |= DeplacerColonneHaut(col);
                     break;
-                case Direction.Down:
+                case Direction.Bas:
                     for (int col = 0; col < 4; col++)
-                        moved |= MoveColumnDown(col);
+                        deplace |= DeplacerColonneBas(col);
                     break;
-                case Direction.Left:
-                    for (int row = 0; row < 4; row++)
-                        moved |= MoveRowLeft(row);
+                case Direction.Gauche:
+                    for (int ligne = 0; ligne < 4; ligne++)
+                        deplace |= DeplacerLigneGauche(ligne);
                     break;
-                case Direction.Right:
-                    for (int row = 0; row < 4; row++)
-                        moved |= MoveRowRight(row);
+                case Direction.Droite:
+                    for (int ligne = 0; ligne < 4; ligne++)
+                        deplace |= DeplacerLigneDroite(ligne);
                     break;
             }
 
-            if (moved)
-                GenerateRandomTile();
+            // Si le déplacement a eu lieu, générer une nouvelle tuile
+            if (deplace)
+                GenererTuileAleatoire();
         }
 
-        static bool MoveColumnUp(int col)
+        // Méthode de déplacement d'une colonne vers le haut
+        static bool DeplacerColonneHaut(int col)
         {
-            bool moved = false;
+            bool deplace = false;
 
-            for (int row = 1; row < 4; row++)
+            for (int ligne = 1; ligne < 4; ligne++)
             {
-                if (grid[row, col] != 0)
+                if (grille[ligne, col] != 0)
                 {
-                    int currentRow = row;
-                    while (currentRow > 0 && grid[currentRow - 1, col] == 0)
+                    int ligneCourante = ligne;
+                    while (ligneCourante > 0 && grille[ligneCourante - 1, col] == 0)
                     {
-                        grid[currentRow - 1, col] = grid[currentRow, col];
-                        grid[currentRow, col] = 0;
-                        currentRow--;
-                        moved = true;
-                    }
-
-                    if (currentRow > 0 && grid[currentRow - 1, col] == grid[currentRow, col])
-                    {
-                        grid[currentRow - 1, col] *= 2;
-                        grid[currentRow, col] = 0;
-                        moved = true;
+                        grille[ligneCourante - 1, col] = grille[ligneCourante, col];
+                        grille[ligneCourante, col] = 0;
+                        ligneCourante--;
+                        deplace = true;
                     }
                 }
             }
 
-            return moved;
+            return deplace;
         }
 
-        static bool MoveColumnDown(int col)
+        // Méthode de déplacement d'une colonne vers le bas
+        static bool DeplacerColonneBas(int col)
         {
-            bool moved = false;
+            bool deplace = false;
 
-            for (int row = 2; row >= 0; row--)
+            for (int ligne = 2; ligne >= 0; ligne--)
             {
-                if (grid[row, col] != 0)
+                if (grille[ligne, col] != 0)
                 {
-                    int currentRow = row;
-                    while (currentRow < 3 && grid[currentRow + 1, col] == 0)
+                    int ligneCourante = ligne;
+                    while (ligneCourante < 3 && grille[ligneCourante + 1, col] == 0)
                     {
-                        grid[currentRow + 1, col] = grid[currentRow, col];
-                        grid[currentRow, col] = 0;
-                        currentRow++;
-                        moved = true;
-                    }
-
-                    if (currentRow < 3 && grid[currentRow + 1, col] == grid[currentRow, col])
-                    {
-                        grid[currentRow + 1, col] *= 2;
-                        grid[currentRow, col] = 0;
-                        moved = true;
+                        grille[ligneCourante + 1, col] = grille[ligneCourante, col];
+                        grille[ligneCourante, col] = 0;
+                        ligneCourante++;
+                        deplace = true;
                     }
                 }
             }
 
-            return moved;
+            return deplace;
         }
 
-        static bool MoveRowLeft(int row)
+        // Méthode de déplacement d'une ligne vers la gauche
+        static bool DeplacerLigneGauche(int ligne)
         {
-            bool moved = false;
+            bool deplace = false;
 
             for (int col = 1; col < 4; col++)
             {
-                if (grid[row, col] != 0)
+                if (grille[ligne, col] != 0)
                 {
-                    int currentCol = col;
-                    while (currentCol > 0 && grid[row, currentCol - 1] == 0)
+                    int colCourante = col;
+                    while (colCourante > 0 && grille[ligne, colCourante - 1] == 0)
                     {
-                        grid[row, currentCol - 1] = grid[row, currentCol];
-                        grid[row, currentCol] = 0;
-                        currentCol--;
-                        moved = true;
-                    }
-
-                    if (currentCol > 0 && grid[row, currentCol - 1] == grid[row, currentCol])
-                    {
-                        grid[row, currentCol - 1] *= 2;
-                        grid[row, currentCol] = 0;
-                        moved = true;
+                        grille[ligne, colCourante - 1] = grille[ligne, colCourante];
+                        grille[ligne, colCourante] = 0;
+                        colCourante--;
+                        deplace = true;
                     }
                 }
             }
 
-            return moved;
+            return deplace;
         }
 
-        static bool MoveRowRight(int row)
+        // Méthode de déplacement d'une ligne vers la droite
+        static bool DeplacerLigneDroite(int ligne)
         {
-            bool moved = false;
+            bool deplace = false;
 
             for (int col = 2; col >= 0; col--)
             {
-                if (grid[row, col] != 0)
+                if (grille[ligne, col] != 0)
                 {
-                    int currentCol = col;
-                    while (currentCol < 3 && grid[row, currentCol + 1] == 0)
+                    int colCourante = col;
+                    while (colCourante < 3 && grille[ligne, colCourante + 1] == 0)
                     {
-                        grid[row, currentCol + 1] = grid[row, currentCol];
-                        grid[row, currentCol] = 0;
-                        currentCol++;
-                        moved = true;
-                    }
-
-                    if (currentCol < 3 && grid[row, currentCol + 1] == grid[row, currentCol])
-                    {
-                        grid[row, currentCol + 1] *= 2;
-                        grid[row, currentCol] = 0;
-                        moved = true;
+                        grille[ligne, colCourante + 1] = grille[ligne, colCourante];
+                        grille[ligne, colCourante] = 0;
+                        colCourante++;
+                        deplace = true;
                     }
                 }
             }
 
-            return moved;
+            return deplace;
         }
 
-        static void GenerateRandomTile()
+        // Génération d'une nouvelle tuile aléatoire
+        static void GenererTuileAleatoire()
         {
-            int emptyCells = CountEmptyCells();
+            int cellulesVides = CompterCellulesVides();
 
-            if (emptyCells == 0)
+            if (cellulesVides == 0)
                 return;
 
-            int randomIndex = random.Next(emptyCells);
-            int count = 0;
+            int indiceAleatoire = random.Next(cellulesVides);
+            int compteur = 0;
 
-            for (int row = 0; row < 4; row++)
+            for (int ligne = 0; ligne < 4; ligne++)
             {
                 for (int col = 0; col < 4; col++)
                 {
-                    if (grid[row, col] == 0)
+                    if (grille[ligne, col] == 0)
                     {
-                        if (count == randomIndex)
+                        if (compteur == indiceAleatoire)
                         {
-                            grid[row, col] = (random.Next(1, 3) == 1) ? 2 : 4;
+                            // Assigner une valeur de 2 ou 4 à la nouvelle tuile
+                            grille[ligne, col] = (random.Next(1, 11) == 1) ? 4 : 2;
                             return;
                         }
-                        count++;
+                        compteur++;
                     }
                 }
             }
         }
 
-        static int CountEmptyCells()
+        // Compter le nombre de cellules vides dans la grille
+        static int CompterCellulesVides()
         {
-            int count = 0;
+            int compteur = 0;
 
-            for (int row = 0; row < 4; row++)
+            for (int ligne = 0; ligne < 4; ligne++)
             {
                 for (int col = 0; col < 4; col++)
                 {
-                    if (grid[row, col] == 0)
+                    if (grille[ligne, col] == 0)
                     {
-                        count++;
+                        compteur++;
                     }
                 }
             }
 
-            return count;
+            return compteur;
         }
 
+        // Enumération des directions de déplacement
         enum Direction
         {
-            Up,
-            Down,
-            Left,
-            Right
+            Haut,
+            Bas,
+            Gauche,
+            Droite
         }
     }
 }
